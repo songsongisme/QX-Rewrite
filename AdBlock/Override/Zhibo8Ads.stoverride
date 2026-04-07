@@ -48,10 +48,10 @@ http:
 
 script-providers:
   zhibo8-adconfig:
-    url: https://raw.githubusercontent.com/ddgksf2013/Rewrite/refs/heads/master/AdBlock/Scripts/zhibo8_json.js
+    url: https://raw.githubusercontent.com/songsongisme/QX-Rewrite/refs/heads/main/AdBlock/Scripts/zhibo8_json.js
     interval: 86400
   zhibo8-feed-filter:
-    url: https://raw.githubusercontent.com/ddgksf2013/Rewrite/refs/heads/master/AdBlock/Scripts/zhibo8_feed.js
+    url: https://raw.githubusercontent.com/songsongisme/QX-Rewrite/refs/heads/main/AdBlock/Scripts/zhibo8_feed.js
     interval: 86400
 
 rules:
