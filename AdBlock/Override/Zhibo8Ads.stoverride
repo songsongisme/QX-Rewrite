@@ -1,0 +1,82 @@
+name: 直播吧净化
+desc: |-
+  去除直播吧APP全部广告(开屏/插屏/弹窗/信息流/比赛页)及广告追踪统计
+  使用前请卸载直播吧APP，挂载脚本然后使用
+  Author: @songsong | Version: V1.0.3 | UpdateTime: 2026-04-07
+
+http:
+  force-http-engine:
+    - "47.111.8.123:8091"
+
+  mitm:
+    - "a.qiumibao.com"
+    - "s.qiumibao.com"
+    - "api.qiumibao.com"
+
+  url-rewrite:
+    # ======= 广告调度服务器[HTTP-IP直连] ======= #
+    # 直播吧_通用广告请求(开屏/重要位置/插屏/比赛页/弹窗)[兜底匹配]
+    - ^http://47\.111\.8\.123:8091/allOne\.php - reject-200
+
+    # ======= APP配置广告开关 ======= #
+    # 直播吧_活动配置
+    - ^https?://a\.qiumibao\.com/activities/config\.php - reject-dict
+
+    # ======= 广告素材请求 ======= #
+    # 直播吧_信息流原生广告素材
+    - ^https?://s\.qiumibao\.com/activities/material/json\.htm - reject-dict
+
+    # ======= 第三方广告SDK ======= #
+    # 字节穿山甲广告SDK资源
+    - ^https?://lf-cdn-tos\.bytescm\.com/obj/static/ad/ - reject-200
+    # 抖音Pangle开放平台广告配置
+    - ^https?://webcast-open\.douyin\.com/webcast/openapi/pangle/ - reject-200
+
+  script:
+    # 直播吧_关闭APP内广告总开关及各广告位开关
+    - match: ^https?://a\.qiumibao\.com/ios/config/
+      name: zhibo8-adconfig
+      type: response
+      require-body: true
+      timeout: 10
+    # 直播吧_推荐页过滤短视频(保留纯新闻信息流)
+    - match: ^https?://api\.qiumibao\.com/application/app/\?_url=/news/hot
+      name: zhibo8-feed-filter
+      type: response
+      require-body: true
+      timeout: 15
+
+script-providers:
+  zhibo8-adconfig:
+    url: https://raw.githubusercontent.com/ddgksf2013/Rewrite/refs/heads/master/AdBlock/Scripts/zhibo8_json.js
+    interval: 86400
+  zhibo8-feed-filter:
+    url: https://raw.githubusercontent.com/ddgksf2013/Rewrite/refs/heads/master/AdBlock/Scripts/zhibo8_feed.js
+    interval: 86400
+
+rules:
+  # ======= 广告追踪与计数 ======= #
+  # 直播吧_广告点击及竞价计数
+  - DOMAIN,ggck.qiumibao.com,REJECT
+  # 直播吧_广告曝光上报
+  - DOMAIN,impress.qiumibao.com,REJECT
+  # 直播吧_广告行为上传(仅拦截ggtg子域名,不影响tu/duihui等正常图片CDN)
+  - DOMAIN,ggtg.duoduocdn.com,REJECT
+
+  # ======= 数据统计 ======= #
+  # 直播吧_用户行为统计
+  - DOMAIN,tongji.qiumibao.com,REJECT
+  # 直播吧_请求上报统计
+  - DOMAIN,req-report.qiumibao.com,REJECT
+  # 直播吧_头条上报
+  - DOMAIN,appck.qiumibao.com,REJECT
+
+  # ======= 第三方广告SDK ======= #
+  # 阿里Tanx广告SDK
+  - DOMAIN,sdk-config.tanx.com,REJECT
+  - DOMAIN,et.tanx.com,REJECT
+  - DOMAIN,opehs.tanx.com,REJECT
+  # 巨量引擎广告事件回调
+  - DOMAIN,pig.pupuapi.com,REJECT
+  # 字节SDK性能监控上报
+  - DOMAIN,apmplus.volces.com,REJECT
